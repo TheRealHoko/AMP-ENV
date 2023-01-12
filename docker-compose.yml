@@ -1,21 +1,33 @@
 services:
   web:
-    image: httpd:latest
+    container_name: webserv
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - ./src:/var/www/html
+    environment:
+      MYSQL_ROOT_PASSWORD: toor
     ports:
       - 80:80
     depends_on:
       - db
-  php:
-    image: php:fpm
-    volumes:
-      - ./src:/var/www/html/
-    depends_on:
-      - db
+    networks:
+      - webnet
   db:
+    container_name: db
     image: mysql:latest
     environment:
       MYSQL_ROOT_PASSWORD: toor
     ports:
       - 3306:3306
     volumes:
-      - ./db:/var/lib/mysql
+      - mydb:/var/lib/mysql
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge
+volumes:
+  mydb: {}
