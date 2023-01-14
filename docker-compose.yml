@@ -30,4 +30,4 @@ networks:
   webnet:
     driver: bridge
 volumes:
-  mydb: {}
+  mydb:
