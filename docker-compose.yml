@@ -1,5 +1,6 @@
 services:
   web:
+    restart: always
     build:
       context: .
       dockerfile: php.dockerfile
@@ -15,15 +16,26 @@ services:
       - webnet
   db:
     image: mysql:latest
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: toor
+      TZ: Europe/Paris
     ports:
       - 3306:3306
     volumes:
       - mydb:/var/lib/mysql
+      - ./scripts/test.sql:/docker-entrypoint-initdb.d/test.sql
     networks:
       - webnet
-
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    networks:
+      - webnet
+    depends_on:
+      - db
 networks:
   webnet:
     driver: bridge
