@@ -1,32 +1,65 @@
 <?php
 
-$request = explode("?", $_SERVER["REQUEST_URI"]);
+ini_set("display_errors", 1);
+error_reporting(E_ALL);
 
-$routes = [
-	"/" => "/View/Home.php",
-	"/user" => "/Api/User/get.php",
-	"/NotFound" => ["/View/NotFound.php", 404]
-];
+require_once __DIR__ . "/Helpers/path.php";
+require_once __DIR__ . "/Helpers/method.php";
+require_once __DIR__ . "/Helpers/response.php";
+require_once __DIR__ . "/Helpers/is_authenticated.php";
 
-$route = $request[0] ?? '/NotFound';
-
-if (array_key_exists($route, $routes))
-{
-	if (is_string($routes[$route]))
-    {
-		require_once __DIR__ . $routes[$route];
-        exit;
-    }
-	else if (is_array($routes[$route]))
-    {
-        http_response_code($routes[$route][1]);
-        require_once __DIR__ . $routes[$route][0];
+if (isPath("/login")) {
+    if (isPostMethod()) {
+        require_once __DIR__ . "/routes/Login/post.php";
         exit;
     }
 }
-else
-{
-    http_response_code($routes["/NotFound"][1]);
-    require_once __DIR__ . $routes["/NotFound"][0];
+
+if (isPath("/logout")) {
+    if (isPostMethod()) {
+        require_once __DIR__ . "/routes/Logout/post.php";
+        exit;
+    }
 }
-exit;
+
+if (isPath("/users")) {
+    if (!isAuthenticated())
+    {
+        echo "401 Unauthorized";
+        exit;
+    }
+    if (isGetMethod()) {
+        require_once __DIR__ . "/routes/User/get.php";
+        exit;
+    }
+
+    if (isPostMethod()) {
+        require_once __DIR__ . "/routes/User/post.php";
+        exit;
+    }
+}
+
+if (isPath("/users/:id")) {
+    if (!isAuthenticated())
+    {
+        echo "401 Unauthorized";
+        exit;
+    }
+    if (isGetMethod()) {
+        require_once __DIR__ . "/routes/User/_id/get.php";
+        exit;
+    }
+
+    if (isPatchMethod()) {
+        require_once __DIR__ . "/routes/User/_id/patch.php";
+        exit;
+    }
+
+    if (isDeleteMethod()) {
+        require_once __DIR__ . "/routes/User/_id/delete.php";
+        exit;
+    }
+}
+
+http_response_code(404);
+require_once __DIR__ . "/routes/NotFound.php";

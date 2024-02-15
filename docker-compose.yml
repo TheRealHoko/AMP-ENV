@@ -6,6 +6,7 @@ services:
       dockerfile: php.dockerfile
     volumes:
       - ./src:/var/www/html
+      - ./config/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     environment:
       MYSQL_ROOT_PASSWORD: toor
     ports:
@@ -24,7 +25,6 @@ services:
       - 3306:3306
     volumes:
       - mydb:/var/lib/mysql
-      - ./scripts/test.sql:/docker-entrypoint-initdb.d/test.sql
     networks:
       - webnet
   phpmyadmin:
